@@ -10,6 +10,7 @@ import Simulation from "./pages/Simulation.jsx";
 import Timeline from "./pages/Timeline.jsx";
 import Upload from "./pages/Upload.jsx";
 import Predictor from "./pages/Predictor.jsx";
+import LiveStream from "./pages/LiveStream.jsx";
 
 export default function App() {
   return (
@@ -21,6 +22,7 @@ export default function App() {
           <Route path="attacks" element={<Attacks />} />
           <Route path="attacks/:id" element={<AttackDetail />} />
           <Route path="insights" element={<Insights />} />
+          <Route path="live" element={<LiveStream />} />
           <Route path="simulation" element={<Simulation />} />
           <Route path="predictor" element={<Predictor />} />
           <Route path="timeline" element={<Timeline />} />

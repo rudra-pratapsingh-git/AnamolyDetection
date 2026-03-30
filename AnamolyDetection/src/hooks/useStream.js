@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 /**
  * useStream — shared SSE hook.
@@ -14,7 +14,20 @@ export function useStream(url = `${API_BASE}/api/stream`) {
   const esRef = useRef(null);
 
   useEffect(() => {
-    const es = new EventSource(url);
+    if (typeof window === "undefined" || typeof EventSource === "undefined") {
+      setIsConnected(false);
+      setError("Live stream unavailable in this environment.");
+      return;
+    }
+
+    let es;
+    try {
+      es = new EventSource(url);
+    } catch {
+      setIsConnected(false);
+      setError("Failed to start live stream.");
+      return;
+    }
     esRef.current = es;
 
     es.onopen = () => {
@@ -37,7 +50,11 @@ export function useStream(url = `${API_BASE}/api/stream`) {
     };
 
     return () => {
-      es.close();
+      try {
+        es.close();
+      } catch {
+        // ignore
+      }
       setIsConnected(false);
     };
   }, [url]);

@@ -16,6 +16,90 @@ body {
   padding: 0;
 }
 
+.app-bg-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 560px at 20% 10%, rgba(34,211,238,0.12), transparent 60%),
+    radial-gradient(900px 560px at 80% 20%, rgba(251,113,133,0.10), transparent 62%),
+    radial-gradient(1100px 680px at 50% 90%, rgba(56,189,248,0.08), transparent 60%),
+    linear-gradient(to bottom, rgba(7,10,18,0.85), rgba(7,10,18,0.98));
+  pointer-events: none;
+}
+
+.app-bg-grid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(148,163,184,0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148,163,184,0.07) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse at 40% 20%, rgba(0,0,0,1), rgba(0,0,0,0.35) 55%, rgba(0,0,0,0) 80%);
+  opacity: 0.9;
+}
+
+.app-bg-scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(148,163,184,0.06),
+    rgba(148,163,184,0.06) 1px,
+    transparent 1px,
+    transparent 7px
+  );
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+}
+
+@keyframes neonPulse {
+  0%, 100% { filter: drop-shadow(0 0 0 rgba(34,211,238,0)); }
+  50% { filter: drop-shadow(0 0 16px rgba(34,211,238,0.35)); }
+}
+
+.neon-pulse {
+  animation: neonPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes attackDash {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+.attack-arc {
+  stroke-linecap: round;
+  stroke-dashoffset: 0;
+  animation: attackDash 1.15s linear infinite;
+  filter: drop-shadow(0 0 10px rgba(34, 211, 238, 0.18));
+}
+
+@keyframes attackDotPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.75;
+    filter: drop-shadow(0 0 0 rgba(244, 63, 94, 0));
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(244, 63, 94, 0.25));
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.75;
+    filter: drop-shadow(0 0 0 rgba(244, 63, 94, 0));
+  }
+}
+
+.attack-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: attackDotPulse 0.9s ease-in-out infinite;
+}
+
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;

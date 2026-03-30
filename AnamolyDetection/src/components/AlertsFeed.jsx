@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { alertKey, normalizeSeverity, severityMeta } from "../utils/alerting";
 
-export default function AlertsFeed({ events, error }) {
+export default function AlertsFeed({ events, error, onNewHighCritical }) {
   const [renderList, setRenderList] = useState([]);
+  const lastTopKeyRef = useRef(null);
 
   useEffect(() => {
     if (!events) return;
@@ -10,6 +12,23 @@ export default function AlertsFeed({ events, error }) {
     setRenderList(threats.slice(0, 12));
   }, [events]);
 
+  const topAlertKey = useMemo(() => (renderList?.[0] ? alertKey(renderList[0], 0) : null), [renderList]);
+  useEffect(() => {
+    if (!renderList?.length) return;
+    const currentTop = renderList[0];
+    const k = topAlertKey;
+    if (!k) return;
+    if (lastTopKeyRef.current == null) {
+      lastTopKeyRef.current = k;
+      return;
+    }
+    if (k !== lastTopKeyRef.current) {
+      lastTopKeyRef.current = k;
+      const sev = normalizeSeverity(currentTop?.severity);
+      if (sev === "Critical" || sev === "High") onNewHighCritical?.(currentTop);
+    }
+  }, [renderList, topAlertKey, onNewHighCritical]);
+
   return (
     <div className="flex-1 overflow-x-hidden overflow-y-auto space-y-3 pr-2 relative h-full">
       {error && <p className="text-red-500 text-xs font-bold tracking-widest uppercase mb-2">{error}</p>}
@@ -17,16 +36,13 @@ export default function AlertsFeed({ events, error }) {
         <div className="text-gray-500 text-center mt-20 italic text-xs font-bold tracking-widest uppercase">Awaiting Active Traces...</div>
       ) : (
         renderList.map((alert, i) => {
-          let badgeColor = "bg-green-600";
-          if (alert.severity === "Critical") badgeColor = "bg-red-600";
-          else if (alert.severity === "High") badgeColor = "bg-orange-500";
-          else if (alert.severity === "Medium") badgeColor = "bg-yellow-500 text-black";
+          const meta = severityMeta(alert?.severity);
 
           const isFading = i >= 10;
 
           return (
             <div 
-              key={alert.id || alert.timestamp + String(i)} 
+              key={alertKey(alert, i)}
               className={`bg-gray-800 p-3 rounded-lg flex justify-between items-center shadow border border-gray-700/50 
                 animate-[slideInRight_300ms_ease-out_forwards]
                 transition-all duration-300
@@ -38,9 +54,17 @@ export default function AlertsFeed({ events, error }) {
                 <span className="font-mono text-cyan-300 text-xs tracking-tight drop-shadow-sm">{alert.src_ip}</span>
                 <span className="text-gray-400 text-[10px] font-bold mt-1 uppercase tracking-widest">{alert.attack_type || "Unknown"}</span>
               </div>
-              <span className={`${badgeColor} font-bold text-[10px] px-2.5 py-1 rounded shadow-sm tracking-widest uppercase`}>
-                {alert.severity || "None"}
-              </span>
+              <div className="flex items-center gap-2">
+                {meta.pulse ? (
+                  <span className="relative inline-flex">
+                    <span className="absolute inline-flex h-2.5 w-2.5 rounded-full bg-rose-500 opacity-75 animate-[pulseRing_1.1s_ease-out_infinite]" />
+                    <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500 shadow-[0_0_14px_rgba(244,63,94,0.55)]" />
+                  </span>
+                ) : null}
+                <span className={`${meta.badge} font-extrabold text-[10px] px-2.5 py-1 rounded shadow-sm tracking-widest uppercase`}>
+                  {meta.label}
+                </span>
+              </div>
             </div>
           );
         })
@@ -49,6 +73,11 @@ export default function AlertsFeed({ events, error }) {
         @keyframes slideInRight {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes pulseRing {
+          0% { transform: scale(1); opacity: 0.75; }
+          70% { transform: scale(2.1); opacity: 0; }
+          100% { transform: scale(2.1); opacity: 0; }
         }
       `}} />
     </div>

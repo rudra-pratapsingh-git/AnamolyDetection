@@ -3,7 +3,7 @@ import Card from "../components/Card";
 import { attackDescriptions } from "../constants/attackDescriptions";
 import { useStream } from "../hooks/useStream";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 const ATTACK_TYPES = [
   { id: "DoS", name: "DoS Attack" },
@@ -96,7 +96,7 @@ export default function Simulation() {
                    : "border-gray-700/50 hover:border-cyan-700/50";
 
              return (
-               <Card key={attack.id} className={`flex flex-col border-2 transition-all duration-300 ${statClass} shadow-xl relative overflow-hidden group`}>
+               <Card key={`${attack.id}-${attack.name}`} className={`flex flex-col border-2 transition-all duration-300 ${statClass} shadow-xl relative overflow-hidden group`}>
                   <h3 className="text-cyan-400 text-2xl font-bold tracking-wide mb-3 uppercase">{attack.name}</h3>
                   <p className="text-gray-400 text-xs leading-relaxed mb-8 flex-1">{desc}</p>
                   
@@ -159,7 +159,7 @@ export default function Simulation() {
                    else if (alert.severity === "Medium") badgeColor = "bg-yellow-500";
                    
                    return (
-                     <div key={alert.id || alert.timestamp + i} className="slide-up bg-gray-800 p-3 rounded-lg flex flex-col md:flex-row justify-between md:items-center border border-gray-600/50 shadow gap-2">
+                     <div key={`${alert.id || "no-id"}-${alert.timestamp || "no-ts"}-${i}`} className="slide-up bg-gray-800 p-3 rounded-lg flex flex-col md:flex-row justify-between md:items-center border border-gray-600/50 shadow gap-2">
                        <div className="flex flex-col">
                          <span className="text-gray-500 text-[10px] font-mono mb-1">{alert.timestamp ? new Date(alert.timestamp).toLocaleTimeString() : "Now"}</span>
                          <span className="font-mono text-cyan-200 text-xs tracking-tight">{alert.src_ip}</span>

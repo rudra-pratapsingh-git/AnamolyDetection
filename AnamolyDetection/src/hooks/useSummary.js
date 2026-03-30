@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
 /**
  * useSummary hook.
@@ -26,7 +26,7 @@ export function useSummary() {
           setError(null);
         }
       } catch (err) {
-        if (isMounted) setError(err.message);
+        if (isMounted) setError(err instanceof Error ? err.message : String(err));
       } finally {
         if (isMounted) setLoading(false);
       }
